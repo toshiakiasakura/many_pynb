@@ -8,6 +8,9 @@
 build/
 dist/
 contextplt.egg-info/
+many_pynb/**/*.ipynb
+*.json
+*.html
 
 # python 
 __pycache__/
