@@ -6,6 +6,10 @@ Output various version of python jupyter notebook from one notebook with differe
 pip install many_pynb
 ```
 
+# Documentation
+- https://github.com/toshiakiasakura/many_pynb
+- https://akitoshiblogsite.com/many-pynb/ (in Japanese)
+
 # Architecture
 Idea of many_pynb is to run a single notebook with different configs. 
 output notebook (nb_output.ipynb) can only indicate the same name of a file, 
