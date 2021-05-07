@@ -10,6 +10,7 @@ import tqdm
 class Vars: 
     default_config_path = os.path.join(".","tmp_many_pynb_config.json")
     default_output_dir = os.path.join(".","many_pynb_output")
+    default_tmp_file = os.path.join(".","many_pynb_tmp.ipynb")
 
     def __init__(self):
         pass
@@ -58,23 +59,33 @@ def run(obj : Vars,
     if not os.path.exists(obj.output_dir):
         os.mkdir(obj.output_dir)
 
-    n = len(obj.config_paths)
-    for i in tqdm.tqdm(range(n)): 
-        config = obj.config_paths[i]
-        output = obj.output_file_paths[i]
-        shutil.copyfile(config, Vars.default_config_path)
+    # this line is for avoiding overwritting the existing file.
+    shutil.copyfile(obj.target_file, Vars.default_tmp_file)
 
-        execute_jupyter_notebook(obj.target_file)
-        output_jupyter_notebook(obj.target_file, obj.output_dir, exclude_input = exclude_code_block )
-        tmp = os.path.join(obj.output_dir, obj.target_file[:-6] + ".html")
-        os.rename( tmp, output)
+    try:
+        n = len(obj.config_paths)
+        for i in tqdm.tqdm(range(n)): 
+            config = obj.config_paths[i]
+            output = obj.output_file_paths[i]
+            shutil.copyfile(config, Vars.default_config_path)
 
-    if not leave_tmp_config:
-        os.remove(Vars.default_config_path)
+            execute_jupyter_notebook(Vars.default_tmp_file)
+            output_jupyter_notebook(Vars.default_tmp_file, obj.output_dir, 
+                                    exclude_input = exclude_code_block )
+            tmp = os.path.join(obj.output_dir, Vars.default_tmp_file[:-6] + ".html")
+            os.rename( tmp, output)
+
+        if not leave_tmp_config:
+            os.remove(Vars.default_config_path)
+    finally:
+        os.remove(Vars.default_tmp_file)
 
 def read_config() -> dict:
     """Read config. This should be set in output notebook.
     """
+    if not os.path.exists(Vars.default_config_path):
+        raise Exception("You should run many_pynb.run at first.")
+
     with open(Vars.default_config_path, "r") as f:
         config = json.load(f)
     return(config)
